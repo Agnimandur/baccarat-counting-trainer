@@ -1049,6 +1049,7 @@
                 </div>
             </div>
             <button class="btn btn-start" onclick="resetGame()">Play Again</button>
+            <p class="hint-text" style="margin-top: 15px;">Press Q to return to start</p>
         </div>
     </div>
 
@@ -1364,6 +1365,14 @@
                 obFormula.style.display = testOptimalBet ? 'block' : 'none';
             } else {
                 countingSystem.classList.remove('visible');
+            }
+
+            // Update hint text based on competitive mode
+            const hintText = document.querySelector('.hint-text');
+            if (competitiveMode) {
+                hintText.textContent = 'SPACE: Submit | P: Pause | Q: Quit | Z: End Game | F: Toggle Cheatsheet';
+            } else {
+                hintText.textContent = 'SPACE: Submit | P: Pause | Q: Quit | F: Toggle Cheatsheet';
             }
 
             updatePerformanceDisplay();
@@ -1792,7 +1801,7 @@
             document.querySelector('h1').style.display = 'block';
         }
 
-        // Keyboard handler for space, F, P, and Q keys
+        // Keyboard handler for space, F, P, Q, and Z keys
         document.addEventListener('keydown', function(e) {
             if (document.getElementById('game-screen').style.display === 'block') {
                 if (e.code === 'Space' && !isPaused) {
@@ -1807,6 +1816,14 @@
                 } else if (e.code === 'KeyQ') {
                     e.preventDefault();
                     quitGame();
+                } else if (e.code === 'KeyZ' && competitiveMode) {
+                    e.preventDefault();
+                    endGame();
+                }
+            } else if (document.getElementById('game-over').style.display === 'block') {
+                if (e.code === 'KeyQ') {
+                    e.preventDefault();
+                    resetGame();
                 }
             }
         });
