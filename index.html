@@ -556,6 +556,270 @@
             color: #2d3436;
             font-style: italic;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            /* Start Panel */
+            #start-panel {
+                padding: 20px 15px;
+            }
+
+            .setting-group label {
+                font-size: 1rem;
+            }
+
+            .value-display {
+                font-size: 1.2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+
+            .toggle-group {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .toggle-group label:first-child {
+                font-size: 0.95rem;
+            }
+
+            .running-count-display {
+                font-size: 0.95rem;
+            }
+
+            .optimal-bet-display {
+                font-size: 1rem;
+            }
+
+            /* Game Screen */
+            .bankroll-display {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .bankroll-item {
+                font-size: 1rem;
+            }
+
+            .health-bar-label {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+
+            .hint-text {
+                font-size: 0.75rem;
+            }
+
+            .timer {
+                font-size: 2.2rem;
+            }
+
+            /* Input Section */
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+                align-items: center;
+            }
+
+            .input-box {
+                width: 100%;
+            }
+
+            .input-box label {
+                font-size: 0.95rem;
+            }
+
+            .count-input {
+                width: 100%;
+                max-width: 200px;
+                font-size: 1.5rem;
+                padding: 10px;
+            }
+
+            .submit-box {
+                width: 100%;
+            }
+
+            .submit-box .btn-submit {
+                width: 100%;
+                max-width: 200px;
+                height: auto;
+                padding: 12px 20px;
+            }
+
+            .result-display {
+                font-size: 0.9rem;
+            }
+
+            .optimal-bet-result {
+                font-size: 1rem;
+            }
+
+            /* Baccarat Table */
+            .baccarat-table {
+                flex-direction: column;
+                gap: 20px;
+                padding: 15px 10px;
+            }
+
+            .hand-label {
+                font-size: 1rem;
+            }
+
+            .cards-container {
+                justify-content: center;
+            }
+
+            .card {
+                width: 60px;
+                height: 84px;
+            }
+
+            /* Counting System */
+            .counting-system {
+                padding: 10px;
+            }
+
+            .coef-grid {
+                gap: 5px;
+            }
+
+            .coef-item {
+                padding: 3px 6px;
+            }
+
+            .coef-card, .coef-value {
+                font-size: 0.8rem;
+            }
+
+            .ob-formula {
+                font-size: 0.8rem;
+            }
+
+            /* Performance Section */
+            .performance-section {
+                padding: 15px 10px;
+                margin-top: 20px;
+            }
+
+            .performance-section h3 {
+                font-size: 1.1rem;
+            }
+
+            .stats-grid {
+                gap: 10px;
+            }
+
+            .stat-box {
+                min-width: 70px;
+                padding: 10px;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            /* History Table */
+            .history-section {
+                max-height: 150px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 6px 4px;
+                font-size: 0.75rem;
+            }
+
+            /* Game Over */
+            #game-over {
+                padding: 20px 15px;
+            }
+
+            #game-over h2 {
+                font-size: 1.8rem;
+            }
+
+            #game-over p {
+                font-size: 0.95rem;
+            }
+
+            .final-stats {
+                margin: 20px 0;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            .card {
+                width: 50px;
+                height: 70px;
+            }
+
+            .count-input {
+                max-width: 160px;
+                font-size: 1.3rem;
+            }
+
+            .stat-box {
+                min-width: 60px;
+                padding: 8px;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .coef-item {
+                padding: 2px 4px;
+            }
+
+            .coef-card, .coef-value {
+                font-size: 0.7rem;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 4px 2px;
+                font-size: 0.65rem;
+            }
+
+            .timer {
+                font-size: 1.8rem;
+            }
+        }
     </style>
 </head>
 <body>
