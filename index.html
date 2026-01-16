@@ -879,8 +879,8 @@
 
             <div class="setting-group">
                 <label>Bankroll (USD)</label>
-                <input type="range" id="bankroll" min="10000" max="200000" step="5000" value="50000">
-                <div class="value-display" id="bankroll-display">$50,000</div>
+                <input type="range" id="bankroll" min="10000" max="200000" step="5000" value="30000">
+                <div class="value-display" id="bankroll-display">$30,000</div>
             </div>
 
             <div class="running-count-display">
@@ -1116,7 +1116,7 @@
         let originalRunningCount = 0;
         let cardsLeftSetting = 416;
         let decisionTime = 30;
-        let bankroll = 50000;
+        let bankroll = 30000;
         let timerInterval = null;
         let currentTime = 0;
         let roundStartTime = 0;
@@ -1137,7 +1137,7 @@
         let hasSubmitted = false;
         let actualRunningCount = 0;
         let actualOptimalBet = 0;
-        let currentBankroll = 50000;
+        let currentBankroll = 30000;
         let testRC = true;
         let testTC = false;
         let testOB = false;
@@ -1187,11 +1187,16 @@
             const remainingDecks = cardsLeftSetting / 52;
             const trueCount = remainingDecks > 0 ? runningCount / remainingDecks : 0;
 
-            // Scale factor based on bankroll (base is 50k)
-            const scale = bankroll / 50000;
-
-            // Optimal bet = max(0, scale * (1.75 * TC - 80))
-            const optimalBet = Math.max(0, scale * (1.75 * trueCount - 80));
+            let optimalBet;
+            if (bankroll === 30000) {
+                // Simplified formula for 30k bankroll: TC - 50
+                optimalBet = Math.max(0, trueCount - 50);
+            } else {
+                // Scale factor based on bankroll (base is 50k)
+                const scale = bankroll / 50000;
+                // Optimal bet = max(0, scale * (1.75 * TC - 80))
+                optimalBet = Math.max(0, scale * (1.75 * trueCount - 80));
+            }
 
             document.getElementById('optimal-bet-display').textContent = '$' + Math.round(optimalBet).toLocaleString();
         }
@@ -1349,9 +1354,9 @@
             document.getElementById('decision-time-display').textContent = '30';
 
             // Reset bankroll
-            bankroll = 50000;
-            document.getElementById('bankroll').value = 50000;
-            document.getElementById('bankroll-display').textContent = '$50,000';
+            bankroll = 30000;
+            document.getElementById('bankroll').value = 30000;
+            document.getElementById('bankroll-display').textContent = '$30,000';
 
             // Reset toggles
             document.getElementById('show-counting-toggle').checked = false;
@@ -1438,10 +1443,15 @@
             const countingSystem = document.getElementById('counting-system');
             const obFormula = document.getElementById('ob-formula');
 
-            // Update OB formula coefficients based on bankroll
-            const scale = bankroll / 50000;
-            document.getElementById('ob-coef1').textContent = (1.75 * scale).toFixed(2);
-            document.getElementById('ob-coef2').textContent = (80 * scale).toFixed(0);
+            // Update OB formula display based on bankroll
+            if (bankroll === 30000) {
+                // Simplified formula for 30k bankroll
+                document.getElementById('ob-formula').innerHTML = 'Optimal Bet = TC − 50';
+            } else {
+                const scale = bankroll / 50000;
+                document.getElementById('ob-formula').innerHTML =
+                    'Optimal Bet = <span id="ob-coef1">' + (1.75 * scale).toFixed(2) + '</span> × TC − <span id="ob-coef2">' + (80 * scale).toFixed(0) + '</span>';
+            }
 
             if (showCounting) {
                 countingSystem.classList.add('visible');
@@ -1491,8 +1501,13 @@
             actualTrueCount = runningCount / remainingDecks;
 
             // Calculate optimal bet
-            const scale = bankroll / 50000;
-            actualOptimalBet = Math.max(0, Math.round(scale * (1.75 * actualTrueCount - 80)));
+            if (bankroll === 30000) {
+                // Simplified formula for 30k bankroll: TC - 50
+                actualOptimalBet = Math.max(0, Math.round(actualTrueCount - 50));
+            } else {
+                const scale = bankroll / 50000;
+                actualOptimalBet = Math.max(0, Math.round(scale * (1.75 * actualTrueCount - 80)));
+            }
 
             // Update UI
             updateHealthBar();
@@ -1886,12 +1901,12 @@
             runningCount = 0;
             originalRunningCount = 0;
             cardsLeftSetting = 416;
-            bankroll = 50000;
+            bankroll = 30000;
             document.getElementById('cards-left-display').textContent = '416';
             document.getElementById('running-count-display').textContent = '0';
             document.getElementById('true-count-display').textContent = '0.00';
-            document.getElementById('bankroll').value = '50000';
-            document.getElementById('bankroll-display').textContent = '$50,000';
+            document.getElementById('bankroll').value = '30000';
+            document.getElementById('bankroll-display').textContent = '$30,000';
             document.getElementById('optimal-bet-display').textContent = '$0';
 
             document.getElementById('start-panel').style.display = 'block';
