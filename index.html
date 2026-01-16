@@ -940,7 +940,7 @@
             <!-- Health Bar -->
             <div class="health-bar-container">
                 <div class="health-bar-label">
-                    <span>Decks Remaining: <strong id="decks-remaining-text">8.00</strong></span>
+                    <span id="decks-remaining-label">Decks Remaining: <strong id="decks-remaining-text">8.00</strong></span>
                     <span class="hint-text">SPACE: Submit | P: Pause | Q: Quit | F: Toggle Cheatsheet</span>
                 </div>
                 <div class="health-bar">
@@ -1464,8 +1464,10 @@
             const hintText = document.querySelector('.hint-text');
             if (competitiveMode) {
                 hintText.textContent = 'SPACE: Submit | P: Pause | Q: Quit | Z: End Game | F: Toggle Cheatsheet';
+                document.getElementById('decks-remaining-label').style.display = 'none';
             } else {
                 hintText.textContent = 'SPACE: Submit | P: Pause | Q: Quit | F: Toggle Cheatsheet';
+                document.getElementById('decks-remaining-label').style.display = 'inline';
             }
 
             updatePerformanceDisplay();
