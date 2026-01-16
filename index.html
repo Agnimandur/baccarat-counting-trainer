@@ -923,7 +923,7 @@
             <div class="toggle-group">
                 <label>Competitive Mode</label>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="competitive-mode-toggle">
+                    <input type="checkbox" id="competitive-mode-toggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -1148,7 +1148,7 @@
         let testRC = true;
         let testTC = false;
         let testOB = false;
-        let competitiveMode = false;
+        let competitiveMode = true;
         let rcTotalError = 0;
         let tcTotalError = 0;
         let obTotalError = 0;
@@ -1389,7 +1389,7 @@
             document.getElementById('test-rc-toggle').checked = true;
             document.getElementById('test-tc-toggle').checked = false;
             document.getElementById('test-ob-toggle').checked = false;
-            document.getElementById('competitive-mode-toggle').checked = false;
+            document.getElementById('competitive-mode-toggle').checked = true;
 
             // Update true count and optimal bet displays
             updateStartingTrueCount();
