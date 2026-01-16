@@ -913,10 +913,6 @@
                         <input type="checkbox" id="test-tc-toggle">
                         <label for="test-tc-toggle">True Count</label>
                     </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="test-ob-toggle">
-                        <label for="test-ob-toggle">Optimal Bet</label>
-                    </div>
                 </div>
             </div>
 
@@ -972,11 +968,6 @@
                         <input type="number" class="count-input" id="true-count-input" step="0.1">
                         <div class="result-display" id="tc-result"></div>
                     </div>
-                    <div class="input-box" id="optimal-bet-input-box" style="display: none;">
-                        <label>Optimal Bet (within $10)</label>
-                        <input type="number" class="count-input" id="optimal-bet-input" step="1">
-                        <div class="result-display" id="ob-result"></div>
-                    </div>
                     <div class="input-box submit-box">
                         <label>&nbsp;</label>
                         <button class="btn btn-submit" onclick="submitGuess()">Submit</button>
@@ -1030,10 +1021,6 @@
                         <div class="stat-value" id="tc-accuracy">0%</div>
                         <div class="stat-label">TC Accuracy</div>
                     </div>
-                    <div class="stat-box" id="ob-accuracy-box" style="display: none;">
-                        <div class="stat-value" id="ob-accuracy">0%</div>
-                        <div class="stat-label">OB Accuracy</div>
-                    </div>
                     <div class="stat-box">
                         <div class="stat-value" id="avg-time">0s</div>
                         <div class="stat-label">Avg Time</div>
@@ -1076,10 +1063,6 @@
                         <div class="stat-value" id="final-tc-accuracy">0%</div>
                         <div class="stat-label">TC Accuracy</div>
                     </div>
-                    <div class="stat-box" id="final-ob-accuracy-box" style="display: none;">
-                        <div class="stat-value" id="final-ob-accuracy">0%</div>
-                        <div class="stat-label">OB Accuracy</div>
-                    </div>
                     <div class="stat-box" id="final-rc-error-box" style="display: none;">
                         <div class="stat-value" id="final-rc-error">0</div>
                         <div class="stat-label">Avg RC Error</div>
@@ -1087,10 +1070,6 @@
                     <div class="stat-box" id="final-tc-error-box" style="display: none;">
                         <div class="stat-value" id="final-tc-error">0</div>
                         <div class="stat-label">Avg TC Error</div>
-                    </div>
-                    <div class="stat-box" id="final-ob-error-box" style="display: none;">
-                        <div class="stat-value" id="final-ob-error">$0</div>
-                        <div class="stat-label">Avg OB Error</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="final-avg-time">0s</div>
@@ -1138,7 +1117,6 @@
         let roundsPlayed = 0;
         let rcCorrectGuesses = 0;
         let tcCorrectGuesses = 0;
-        let obCorrectGuesses = 0;
         let totalTime = 0;
         let history = [];
         let hasSubmitted = false;
@@ -1147,11 +1125,9 @@
         let currentBankroll = 30000;
         let testRC = true;
         let testTC = false;
-        let testOB = false;
         let competitiveMode = true;
         let rcTotalError = 0;
         let tcTotalError = 0;
-        let obTotalError = 0;
 
         // Initialize inputs
         document.getElementById('num-decks').addEventListener('input', function() {
@@ -1182,10 +1158,9 @@
         function validateCheckboxes(changedCheckbox) {
             const rcCheck = document.getElementById('test-rc-toggle');
             const tcCheck = document.getElementById('test-tc-toggle');
-            const obCheck = document.getElementById('test-ob-toggle');
 
             // If unchecking and it's the last one checked, prevent it
-            if (!changedCheckbox.checked && !rcCheck.checked && !tcCheck.checked && !obCheck.checked) {
+            if (!changedCheckbox.checked && !rcCheck.checked && !tcCheck.checked) {
                 changedCheckbox.checked = true;
             }
         }
@@ -1195,10 +1170,6 @@
         });
 
         document.getElementById('test-tc-toggle').addEventListener('change', function() {
-            validateCheckboxes(this);
-        });
-
-        document.getElementById('test-ob-toggle').addEventListener('change', function() {
             validateCheckboxes(this);
         });
 
@@ -1388,7 +1359,6 @@
             document.getElementById('show-counting-toggle').checked = false;
             document.getElementById('test-rc-toggle').checked = true;
             document.getElementById('test-tc-toggle').checked = false;
-            document.getElementById('test-ob-toggle').checked = false;
             document.getElementById('competitive-mode-toggle').checked = true;
 
             // Update true count and optimal bet displays
@@ -1432,10 +1402,8 @@
             roundsPlayed = 0;
             rcCorrectGuesses = 0;
             tcCorrectGuesses = 0;
-            obCorrectGuesses = 0;
             rcTotalError = 0;
             tcTotalError = 0;
-            obTotalError = 0;
             totalTime = 0;
             currentBankroll = bankroll;
             history = [];
@@ -1443,7 +1411,6 @@
             // Check which metrics to test and competitive mode
             testRC = document.getElementById('test-rc-toggle').checked;
             testTC = document.getElementById('test-tc-toggle').checked;
-            testOB = document.getElementById('test-ob-toggle').checked;
             competitiveMode = document.getElementById('competitive-mode-toggle').checked;
 
             document.getElementById('start-panel').style.display = 'none';
@@ -1458,12 +1425,10 @@
             // Show/hide input boxes based on what's being tested
             document.getElementById('running-count-input').parentElement.style.display = testRC ? 'block' : 'none';
             document.getElementById('true-count-input').parentElement.style.display = testTC ? 'block' : 'none';
-            document.getElementById('optimal-bet-input-box').style.display = testOB ? 'block' : 'none';
 
             // Show/hide accuracy boxes in performance section
             document.getElementById('rc-accuracy').parentElement.style.display = testRC ? 'block' : 'none';
             document.getElementById('tc-accuracy').parentElement.style.display = testTC ? 'block' : 'none';
-            document.getElementById('ob-accuracy-box').style.display = testOB ? 'block' : 'none';
 
             // Set initial counting system visibility based on toggle
             const showCounting = document.getElementById('show-counting-toggle').checked;
@@ -1482,7 +1447,7 @@
 
             if (showCounting) {
                 countingSystem.classList.add('visible');
-                obFormula.style.display = testOB ? 'block' : 'none';
+                obFormula.style.display = 'block';
             } else {
                 countingSystem.classList.remove('visible');
             }
@@ -1513,6 +1478,18 @@
             isPaused = false;
             totalPausedTime = 0;
 
+            // Calculate optimal bet BEFORE dealing (bet is placed before seeing the hand)
+            const remainingDecksBefore = deck.length / 52;
+            const trueCountBefore = remainingDecksBefore > 0 ? runningCount / remainingDecksBefore : 0;
+
+            if (bankroll === 30000) {
+                // Simplified formula for 30k bankroll: TC - 50
+                actualOptimalBet = Math.max(0, Math.round(trueCountBefore - 50));
+            } else {
+                const scale = bankroll / 50000;
+                actualOptimalBet = Math.max(0, Math.round(scale * (1.75 * trueCountBefore - 80)));
+            }
+
             // Deal baccarat hand according to rules
             dealBaccaratHand();
 
@@ -1524,19 +1501,10 @@
                 runningCount += COEFS[card.baccaratValue];
             }
 
-            // Store actual counts
+            // Store actual counts (after seeing the hand - this is what the user needs to guess)
             actualRunningCount = runningCount;
             const remainingDecks = deck.length / 52;
             actualTrueCount = runningCount / remainingDecks;
-
-            // Calculate optimal bet
-            if (bankroll === 30000) {
-                // Simplified formula for 30k bankroll: TC - 50
-                actualOptimalBet = Math.max(0, Math.round(actualTrueCount - 50));
-            } else {
-                const scale = bankroll / 50000;
-                actualOptimalBet = Math.max(0, Math.round(scale * (1.75 * actualTrueCount - 80)));
-            }
 
             // Update UI
             updateHealthBar();
@@ -1545,17 +1513,13 @@
             // Reset inputs
             const rcInput = document.getElementById('running-count-input');
             const tcInput = document.getElementById('true-count-input');
-            const obInput = document.getElementById('optimal-bet-input');
             rcInput.value = '';
             tcInput.value = '';
-            obInput.value = '';
             rcInput.className = 'count-input';
             tcInput.className = 'count-input';
-            obInput.className = 'count-input';
             rcInput.focus();
             document.getElementById('rc-result').textContent = '';
             document.getElementById('tc-result').textContent = '';
-            document.getElementById('ob-result').textContent = '';
             document.getElementById('optimal-bet-result').textContent = '';
             document.getElementById('dragon7-result').textContent = '';
 
@@ -1656,19 +1620,15 @@
 
             const rcInput = document.getElementById('running-count-input');
             const tcInput = document.getElementById('true-count-input');
-            const obInput = document.getElementById('optimal-bet-input');
 
             const rcValue = rcInput.value.trim();
             const tcValue = tcInput.value.trim();
-            const obValue = obInput.value.trim();
 
             const rcIsBlank = rcValue === '';
             const tcIsBlank = tcValue === '';
-            const obIsBlank = obValue === '';
 
             const rcGuess = rcIsBlank ? null : parseInt(rcValue);
             const tcGuess = tcIsBlank ? null : parseFloat(tcValue);
-            const obGuess = obIsBlank ? null : parseInt(obValue);
 
             const timeTaken = (Date.now() - roundStartTime - totalPausedTime) / 1000;
 
@@ -1678,18 +1638,13 @@
             // Check TC accuracy (within 1) - only if testing
             const tcCorrect = testTC && !tcIsBlank && !isNaN(tcGuess) && Math.abs(tcGuess - actualTrueCount) <= 1;
 
-            // Check OB accuracy (within $10) - only if testing
-            const obCorrect = testOB && !obIsBlank && !isNaN(obGuess) && Math.abs(obGuess - actualOptimalBet) <= 10;
-
             // Calculate absolute errors for competitive mode (only for tested metrics)
             const rcError = testRC ? (rcIsBlank || isNaN(rcGuess) ? Math.abs(Math.round(actualRunningCount)) : Math.abs(rcGuess - Math.round(actualRunningCount))) : 0;
             const tcError = testTC ? (tcIsBlank || isNaN(tcGuess) ? Math.abs(actualTrueCount) : Math.abs(tcGuess - actualTrueCount)) : 0;
-            const obError = testOB ? (obIsBlank || isNaN(obGuess) ? actualOptimalBet : Math.abs(obGuess - actualOptimalBet)) : 0;
 
             // Track total errors
             if (testRC) rcTotalError += rcError;
             if (testTC) tcTotalError += tcError;
-            if (testOB) obTotalError += obError;
 
             // Update UI - hide actual values in competitive mode
             const rcResultEl = document.getElementById('rc-result');
@@ -1707,12 +1662,6 @@
                     tcResultEl.textContent = 'Submitted';
                     tcResultEl.className = 'result-display';
                 }
-                if (testOB) {
-                    obInput.className = 'count-input';
-                    const obResultEl = document.getElementById('ob-result');
-                    obResultEl.textContent = 'Submitted';
-                    obResultEl.className = 'result-display';
-                }
 
                 // Don't show optimal bet result in competitive mode
                 document.getElementById('optimal-bet-result').textContent = '';
@@ -1728,14 +1677,6 @@
                     tcInput.className = `count-input ${tcCorrect ? 'correct' : 'incorrect'}`;
                     tcResultEl.textContent = `Actual: ${actualTrueCount.toFixed(2)}`;
                     tcResultEl.className = `result-display ${tcCorrect ? 'correct' : 'incorrect'}`;
-                }
-
-                // Update optimal bet UI
-                if (testOB) {
-                    obInput.className = `count-input ${obCorrect ? 'correct' : 'incorrect'}`;
-                    const obResultEl = document.getElementById('ob-result');
-                    obResultEl.textContent = `Actual: $${actualOptimalBet.toLocaleString()}`;
-                    obResultEl.className = `result-display ${obCorrect ? 'correct' : 'incorrect'}`;
                 }
 
                 // Show optimal bet result in normal mode
@@ -1778,7 +1719,6 @@
             roundsPlayed++;
             if (testRC && rcCorrect) rcCorrectGuesses++;
             if (testTC && tcCorrect) tcCorrectGuesses++;
-            if (testOB && obCorrect) obCorrectGuesses++;
             totalTime += timeTaken;
 
             history.push({
@@ -1806,7 +1746,6 @@
                 // In competitive mode, hide accuracy stats during game
                 if (testRC) document.getElementById('rc-accuracy').textContent = '—';
                 if (testTC) document.getElementById('tc-accuracy').textContent = '—';
-                if (testOB) document.getElementById('ob-accuracy').textContent = '—';
             } else {
                 if (testRC) {
                     const rcAccuracy = roundsPlayed > 0 ? (rcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
@@ -1816,11 +1755,6 @@
                 if (testTC) {
                     const tcAccuracy = roundsPlayed > 0 ? (tcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
                     document.getElementById('tc-accuracy').textContent = tcAccuracy + '%';
-                }
-
-                if (testOB) {
-                    const obAccuracy = roundsPlayed > 0 ? (obCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
-                    document.getElementById('ob-accuracy').textContent = obAccuracy + '%';
                 }
             }
 
@@ -1873,12 +1807,10 @@
                 // Competitive mode: show average errors for tested metrics, hide accuracy percentages
                 document.getElementById('final-rc-accuracy').parentElement.style.display = 'none';
                 document.getElementById('final-tc-accuracy').parentElement.style.display = 'none';
-                document.getElementById('final-ob-accuracy-box').style.display = 'none';
 
                 // Show error boxes only for tested metrics
                 document.getElementById('final-rc-error-box').style.display = testRC ? 'block' : 'none';
                 document.getElementById('final-tc-error-box').style.display = testTC ? 'block' : 'none';
-                document.getElementById('final-ob-error-box').style.display = testOB ? 'block' : 'none';
 
                 if (testRC) {
                     const avgRcError = roundsPlayed > 0 ? (rcTotalError / roundsPlayed).toFixed(1) : 0;
@@ -1889,19 +1821,12 @@
                     const avgTcError = roundsPlayed > 0 ? (tcTotalError / roundsPlayed).toFixed(2) : 0;
                     document.getElementById('final-tc-error').textContent = avgTcError;
                 }
-
-                if (testOB) {
-                    const avgObError = roundsPlayed > 0 ? Math.round(obTotalError / roundsPlayed) : 0;
-                    document.getElementById('final-ob-error').textContent = '$' + avgObError.toLocaleString();
-                }
             } else {
                 // Normal mode: show accuracy percentages for tested metrics, hide error boxes
                 document.getElementById('final-rc-accuracy').parentElement.style.display = testRC ? 'block' : 'none';
                 document.getElementById('final-tc-accuracy').parentElement.style.display = testTC ? 'block' : 'none';
-                document.getElementById('final-ob-accuracy-box').style.display = testOB ? 'block' : 'none';
                 document.getElementById('final-rc-error-box').style.display = 'none';
                 document.getElementById('final-tc-error-box').style.display = 'none';
-                document.getElementById('final-ob-error-box').style.display = 'none';
 
                 if (testRC) {
                     const rcAccuracy = roundsPlayed > 0 ? (rcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
@@ -1911,11 +1836,6 @@
                 if (testTC) {
                     const tcAccuracy = roundsPlayed > 0 ? (tcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
                     document.getElementById('final-tc-accuracy').textContent = tcAccuracy + '%';
-                }
-
-                if (testOB) {
-                    const obAccuracy = roundsPlayed > 0 ? (obCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
-                    document.getElementById('final-ob-accuracy').textContent = obAccuracy + '%';
                 }
             }
 
@@ -1980,9 +1900,9 @@
             const system = document.getElementById('counting-system');
             system.classList.toggle('visible');
 
-            // Show/hide OB formula based on testOB setting
+            // Show OB formula when counting system is visible
             const obFormula = document.getElementById('ob-formula');
-            obFormula.style.display = testOB ? 'block' : 'none';
+            obFormula.style.display = system.classList.contains('visible') ? 'block' : 'none';
         }
 
         // Toggle pause
