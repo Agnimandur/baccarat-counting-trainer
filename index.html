@@ -557,6 +557,44 @@
             font-style: italic;
         }
 
+        /* Checkbox Group */
+        .checkbox-group {
+            margin: 25px 0;
+        }
+
+        .checkbox-group-label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .checkbox-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #2d3436;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             .container {
@@ -858,12 +896,22 @@
                 </label>
             </div>
 
-            <div class="toggle-group">
-                <label>Test Optimal Bet</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="test-optimal-bet-toggle">
-                    <span class="toggle-slider"></span>
-                </label>
+            <div class="checkbox-group">
+                <span class="checkbox-group-label">Test Which Metrics</span>
+                <div class="checkbox-row">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="test-rc-toggle" checked>
+                        <label for="test-rc-toggle">Running Count</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="test-tc-toggle">
+                        <label for="test-tc-toggle">True Count</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="test-ob-toggle">
+                        <label for="test-ob-toggle">Optimal Bet</label>
+                    </div>
+                </div>
             </div>
 
             <div class="toggle-group">
@@ -1090,7 +1138,9 @@
         let actualRunningCount = 0;
         let actualOptimalBet = 0;
         let currentBankroll = 50000;
-        let testOptimalBet = false;
+        let testRC = true;
+        let testTC = false;
+        let testOB = false;
         let competitiveMode = false;
         let rcTotalError = 0;
         let tcTotalError = 0;
@@ -1106,6 +1156,30 @@
             bankroll = parseInt(this.value);
             document.getElementById('bankroll-display').textContent = '$' + bankroll.toLocaleString();
             updateOptimalBet();
+        });
+
+        // Checkbox validation - require at least 1 selected
+        function validateCheckboxes(changedCheckbox) {
+            const rcCheck = document.getElementById('test-rc-toggle');
+            const tcCheck = document.getElementById('test-tc-toggle');
+            const obCheck = document.getElementById('test-ob-toggle');
+
+            // If unchecking and it's the last one checked, prevent it
+            if (!changedCheckbox.checked && !rcCheck.checked && !tcCheck.checked && !obCheck.checked) {
+                changedCheckbox.checked = true;
+            }
+        }
+
+        document.getElementById('test-rc-toggle').addEventListener('change', function() {
+            validateCheckboxes(this);
+        });
+
+        document.getElementById('test-tc-toggle').addEventListener('change', function() {
+            validateCheckboxes(this);
+        });
+
+        document.getElementById('test-ob-toggle').addEventListener('change', function() {
+            validateCheckboxes(this);
         });
 
         // Calculate and display optimal bet
@@ -1281,7 +1355,9 @@
 
             // Reset toggles
             document.getElementById('show-counting-toggle').checked = false;
-            document.getElementById('test-optimal-bet-toggle').checked = false;
+            document.getElementById('test-rc-toggle').checked = true;
+            document.getElementById('test-tc-toggle').checked = false;
+            document.getElementById('test-ob-toggle').checked = false;
             document.getElementById('competitive-mode-toggle').checked = false;
 
             // Update true count and optimal bet displays
@@ -1332,8 +1408,10 @@
             currentBankroll = bankroll;
             history = [];
 
-            // Check if testing optimal bet and competitive mode
-            testOptimalBet = document.getElementById('test-optimal-bet-toggle').checked;
+            // Check which metrics to test and competitive mode
+            testRC = document.getElementById('test-rc-toggle').checked;
+            testTC = document.getElementById('test-tc-toggle').checked;
+            testOB = document.getElementById('test-ob-toggle').checked;
             competitiveMode = document.getElementById('competitive-mode-toggle').checked;
 
             document.getElementById('start-panel').style.display = 'none';
@@ -1345,10 +1423,15 @@
             document.getElementById('game-bankroll').textContent = '$' + currentBankroll.toLocaleString();
             document.getElementById('dragon7-result').textContent = '';
 
-            // Show/hide optimal bet input and accuracy boxes
-            document.getElementById('optimal-bet-input-box').style.display = testOptimalBet ? 'block' : 'none';
-            document.getElementById('ob-accuracy-box').style.display = testOptimalBet ? 'block' : 'none';
-            document.getElementById('final-ob-accuracy-box').style.display = testOptimalBet ? 'block' : 'none';
+            // Show/hide input boxes based on what's being tested
+            document.getElementById('running-count-input').parentElement.style.display = testRC ? 'block' : 'none';
+            document.getElementById('true-count-input').parentElement.style.display = testTC ? 'block' : 'none';
+            document.getElementById('optimal-bet-input-box').style.display = testOB ? 'block' : 'none';
+
+            // Show/hide accuracy boxes in performance section
+            document.getElementById('rc-accuracy').parentElement.style.display = testRC ? 'block' : 'none';
+            document.getElementById('tc-accuracy').parentElement.style.display = testTC ? 'block' : 'none';
+            document.getElementById('ob-accuracy-box').style.display = testOB ? 'block' : 'none';
 
             // Set initial counting system visibility based on toggle
             const showCounting = document.getElementById('show-counting-toggle').checked;
@@ -1362,7 +1445,7 @@
 
             if (showCounting) {
                 countingSystem.classList.add('visible');
-                obFormula.style.display = testOptimalBet ? 'block' : 'none';
+                obFormula.style.display = testOB ? 'block' : 'none';
             } else {
                 countingSystem.classList.remove('visible');
             }
@@ -1544,24 +1627,24 @@
 
             const timeTaken = (Date.now() - roundStartTime - totalPausedTime) / 1000;
 
-            // Check RC accuracy (exact match for integers)
-            const rcCorrect = !rcIsBlank && !isNaN(rcGuess) && rcGuess === Math.round(actualRunningCount);
+            // Check RC accuracy (exact match for integers) - only if testing
+            const rcCorrect = testRC && !rcIsBlank && !isNaN(rcGuess) && rcGuess === Math.round(actualRunningCount);
 
-            // Check TC accuracy (within 1)
-            const tcCorrect = !tcIsBlank && !isNaN(tcGuess) && Math.abs(tcGuess - actualTrueCount) <= 1;
+            // Check TC accuracy (within 1) - only if testing
+            const tcCorrect = testTC && !tcIsBlank && !isNaN(tcGuess) && Math.abs(tcGuess - actualTrueCount) <= 1;
 
             // Check OB accuracy (within $10) - only if testing
-            const obCorrect = testOptimalBet && !obIsBlank && !isNaN(obGuess) && Math.abs(obGuess - actualOptimalBet) <= 10;
+            const obCorrect = testOB && !obIsBlank && !isNaN(obGuess) && Math.abs(obGuess - actualOptimalBet) <= 10;
 
-            // Calculate absolute errors for competitive mode
-            const rcError = rcIsBlank || isNaN(rcGuess) ? Math.abs(Math.round(actualRunningCount)) : Math.abs(rcGuess - Math.round(actualRunningCount));
-            const tcError = tcIsBlank || isNaN(tcGuess) ? Math.abs(actualTrueCount) : Math.abs(tcGuess - actualTrueCount);
-            const obError = testOptimalBet ? (obIsBlank || isNaN(obGuess) ? actualOptimalBet : Math.abs(obGuess - actualOptimalBet)) : 0;
+            // Calculate absolute errors for competitive mode (only for tested metrics)
+            const rcError = testRC ? (rcIsBlank || isNaN(rcGuess) ? Math.abs(Math.round(actualRunningCount)) : Math.abs(rcGuess - Math.round(actualRunningCount))) : 0;
+            const tcError = testTC ? (tcIsBlank || isNaN(tcGuess) ? Math.abs(actualTrueCount) : Math.abs(tcGuess - actualTrueCount)) : 0;
+            const obError = testOB ? (obIsBlank || isNaN(obGuess) ? actualOptimalBet : Math.abs(obGuess - actualOptimalBet)) : 0;
 
             // Track total errors
-            rcTotalError += rcError;
-            tcTotalError += tcError;
-            obTotalError += obError;
+            if (testRC) rcTotalError += rcError;
+            if (testTC) tcTotalError += tcError;
+            if (testOB) obTotalError += obError;
 
             // Update UI - hide actual values in competitive mode
             const rcResultEl = document.getElementById('rc-result');
@@ -1569,14 +1652,17 @@
 
             if (competitiveMode) {
                 // In competitive mode, don't show actual values or correct/incorrect styling
-                rcInput.className = 'count-input';
-                tcInput.className = 'count-input';
-                rcResultEl.textContent = 'Submitted';
-                rcResultEl.className = 'result-display';
-                tcResultEl.textContent = 'Submitted';
-                tcResultEl.className = 'result-display';
-
-                if (testOptimalBet) {
+                if (testRC) {
+                    rcInput.className = 'count-input';
+                    rcResultEl.textContent = 'Submitted';
+                    rcResultEl.className = 'result-display';
+                }
+                if (testTC) {
+                    tcInput.className = 'count-input';
+                    tcResultEl.textContent = 'Submitted';
+                    tcResultEl.className = 'result-display';
+                }
+                if (testOB) {
                     obInput.className = 'count-input';
                     const obResultEl = document.getElementById('ob-result');
                     obResultEl.textContent = 'Submitted';
@@ -1586,18 +1672,21 @@
                 // Don't show optimal bet result in competitive mode
                 document.getElementById('optimal-bet-result').textContent = '';
             } else {
-                // Normal mode - show actual values
-                rcInput.className = `count-input ${rcCorrect ? 'correct' : 'incorrect'}`;
-                tcInput.className = `count-input ${tcCorrect ? 'correct' : 'incorrect'}`;
+                // Normal mode - show actual values for tested metrics only
+                if (testRC) {
+                    rcInput.className = `count-input ${rcCorrect ? 'correct' : 'incorrect'}`;
+                    rcResultEl.textContent = `Actual: ${Math.round(actualRunningCount)}`;
+                    rcResultEl.className = `result-display ${rcCorrect ? 'correct' : 'incorrect'}`;
+                }
 
-                rcResultEl.textContent = `Actual: ${Math.round(actualRunningCount)}`;
-                rcResultEl.className = `result-display ${rcCorrect ? 'correct' : 'incorrect'}`;
-
-                tcResultEl.textContent = `Actual: ${actualTrueCount.toFixed(2)}`;
-                tcResultEl.className = `result-display ${tcCorrect ? 'correct' : 'incorrect'}`;
+                if (testTC) {
+                    tcInput.className = `count-input ${tcCorrect ? 'correct' : 'incorrect'}`;
+                    tcResultEl.textContent = `Actual: ${actualTrueCount.toFixed(2)}`;
+                    tcResultEl.className = `result-display ${tcCorrect ? 'correct' : 'incorrect'}`;
+                }
 
                 // Update optimal bet UI
-                if (testOptimalBet) {
+                if (testOB) {
                     obInput.className = `count-input ${obCorrect ? 'correct' : 'incorrect'}`;
                     const obResultEl = document.getElementById('ob-result');
                     obResultEl.textContent = `Actual: $${actualOptimalBet.toLocaleString()}`;
@@ -1642,16 +1731,16 @@
 
             // Update performance
             roundsPlayed++;
-            if (rcCorrect) rcCorrectGuesses++;
-            if (tcCorrect) tcCorrectGuesses++;
-            if (testOptimalBet && obCorrect) obCorrectGuesses++;
+            if (testRC && rcCorrect) rcCorrectGuesses++;
+            if (testTC && tcCorrect) tcCorrectGuesses++;
+            if (testOB && obCorrect) obCorrectGuesses++;
             totalTime += timeTaken;
 
             history.push({
                 round: roundsPlayed,
-                rcGuess: rcIsBlank ? '—' : rcGuess,
+                rcGuess: testRC ? (rcIsBlank ? '—' : rcGuess) : 'N/A',
                 rcActual: Math.round(actualRunningCount),
-                tcGuess: tcIsBlank ? '—' : tcGuess.toFixed(2),
+                tcGuess: testTC ? (tcIsBlank ? '—' : tcGuess.toFixed(2)) : 'N/A',
                 tcActual: actualTrueCount.toFixed(2),
                 time: timeTaken.toFixed(1)
             });
@@ -1670,19 +1759,21 @@
 
             if (competitiveMode) {
                 // In competitive mode, hide accuracy stats during game
-                document.getElementById('rc-accuracy').textContent = '—';
-                document.getElementById('tc-accuracy').textContent = '—';
-                if (testOptimalBet) {
-                    document.getElementById('ob-accuracy').textContent = '—';
-                }
+                if (testRC) document.getElementById('rc-accuracy').textContent = '—';
+                if (testTC) document.getElementById('tc-accuracy').textContent = '—';
+                if (testOB) document.getElementById('ob-accuracy').textContent = '—';
             } else {
-                const rcAccuracy = roundsPlayed > 0 ? (rcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
-                document.getElementById('rc-accuracy').textContent = rcAccuracy + '%';
+                if (testRC) {
+                    const rcAccuracy = roundsPlayed > 0 ? (rcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
+                    document.getElementById('rc-accuracy').textContent = rcAccuracy + '%';
+                }
 
-                const tcAccuracy = roundsPlayed > 0 ? (tcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
-                document.getElementById('tc-accuracy').textContent = tcAccuracy + '%';
+                if (testTC) {
+                    const tcAccuracy = roundsPlayed > 0 ? (tcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
+                    document.getElementById('tc-accuracy').textContent = tcAccuracy + '%';
+                }
 
-                if (testOptimalBet) {
+                if (testOB) {
                     const obAccuracy = roundsPlayed > 0 ? (obCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
                     document.getElementById('ob-accuracy').textContent = obAccuracy + '%';
                 }
@@ -1734,42 +1825,50 @@
             document.getElementById('final-rounds').textContent = roundsPlayed;
 
             if (competitiveMode) {
-                // Competitive mode: show average errors, hide accuracy percentages
+                // Competitive mode: show average errors for tested metrics, hide accuracy percentages
                 document.getElementById('final-rc-accuracy').parentElement.style.display = 'none';
                 document.getElementById('final-tc-accuracy').parentElement.style.display = 'none';
                 document.getElementById('final-ob-accuracy-box').style.display = 'none';
 
-                // Show error boxes
-                document.getElementById('final-rc-error-box').style.display = 'block';
-                document.getElementById('final-tc-error-box').style.display = 'block';
+                // Show error boxes only for tested metrics
+                document.getElementById('final-rc-error-box').style.display = testRC ? 'block' : 'none';
+                document.getElementById('final-tc-error-box').style.display = testTC ? 'block' : 'none';
+                document.getElementById('final-ob-error-box').style.display = testOB ? 'block' : 'none';
 
-                const avgRcError = roundsPlayed > 0 ? (rcTotalError / roundsPlayed).toFixed(1) : 0;
-                document.getElementById('final-rc-error').textContent = avgRcError;
+                if (testRC) {
+                    const avgRcError = roundsPlayed > 0 ? (rcTotalError / roundsPlayed).toFixed(1) : 0;
+                    document.getElementById('final-rc-error').textContent = avgRcError;
+                }
 
-                const avgTcError = roundsPlayed > 0 ? (tcTotalError / roundsPlayed).toFixed(2) : 0;
-                document.getElementById('final-tc-error').textContent = avgTcError;
+                if (testTC) {
+                    const avgTcError = roundsPlayed > 0 ? (tcTotalError / roundsPlayed).toFixed(2) : 0;
+                    document.getElementById('final-tc-error').textContent = avgTcError;
+                }
 
-                if (testOptimalBet) {
-                    document.getElementById('final-ob-error-box').style.display = 'block';
+                if (testOB) {
                     const avgObError = roundsPlayed > 0 ? Math.round(obTotalError / roundsPlayed) : 0;
                     document.getElementById('final-ob-error').textContent = '$' + avgObError.toLocaleString();
                 }
             } else {
-                // Normal mode: show accuracy percentages, hide error boxes
-                document.getElementById('final-rc-accuracy').parentElement.style.display = 'block';
-                document.getElementById('final-tc-accuracy').parentElement.style.display = 'block';
+                // Normal mode: show accuracy percentages for tested metrics, hide error boxes
+                document.getElementById('final-rc-accuracy').parentElement.style.display = testRC ? 'block' : 'none';
+                document.getElementById('final-tc-accuracy').parentElement.style.display = testTC ? 'block' : 'none';
+                document.getElementById('final-ob-accuracy-box').style.display = testOB ? 'block' : 'none';
                 document.getElementById('final-rc-error-box').style.display = 'none';
                 document.getElementById('final-tc-error-box').style.display = 'none';
                 document.getElementById('final-ob-error-box').style.display = 'none';
 
-                const rcAccuracy = roundsPlayed > 0 ? (rcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
-                document.getElementById('final-rc-accuracy').textContent = rcAccuracy + '%';
+                if (testRC) {
+                    const rcAccuracy = roundsPlayed > 0 ? (rcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
+                    document.getElementById('final-rc-accuracy').textContent = rcAccuracy + '%';
+                }
 
-                const tcAccuracy = roundsPlayed > 0 ? (tcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
-                document.getElementById('final-tc-accuracy').textContent = tcAccuracy + '%';
+                if (testTC) {
+                    const tcAccuracy = roundsPlayed > 0 ? (tcCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
+                    document.getElementById('final-tc-accuracy').textContent = tcAccuracy + '%';
+                }
 
-                if (testOptimalBet) {
-                    document.getElementById('final-ob-accuracy-box').style.display = 'block';
+                if (testOB) {
                     const obAccuracy = roundsPlayed > 0 ? (obCorrectGuesses / roundsPlayed * 100).toFixed(0) : 0;
                     document.getElementById('final-ob-accuracy').textContent = obAccuracy + '%';
                 }
@@ -1833,9 +1932,9 @@
             const system = document.getElementById('counting-system');
             system.classList.toggle('visible');
 
-            // Show/hide OB formula based on testOptimalBet setting
+            // Show/hide OB formula based on testOB setting
             const obFormula = document.getElementById('ob-formula');
-            obFormula.style.display = testOptimalBet ? 'block' : 'none';
+            obFormula.style.display = testOB ? 'block' : 'none';
         }
 
         // Toggle pause
