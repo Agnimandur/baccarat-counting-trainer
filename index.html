@@ -867,8 +867,14 @@
         <!-- Start Panel -->
         <div id="start-panel">
             <div class="setting-group">
+                <label>Number of Decks</label>
+                <input type="range" id="num-decks" min="1" max="8" value="6">
+                <div class="value-display" id="num-decks-display">6</div>
+            </div>
+
+            <div class="setting-group">
                 <label>Cards Left in Deck</label>
-                <div class="value-display" id="cards-left-display">416</div>
+                <div class="value-display" id="cards-left-display">312</div>
             </div>
 
             <div class="setting-group">
@@ -1114,7 +1120,8 @@
         let deck = [];
         let runningCount = 0;
         let originalRunningCount = 0;
-        let cardsLeftSetting = 416;
+        let numDecks = 6;
+        let cardsLeftSetting = 312; // 6 * 52
         let decisionTime = 30;
         let bankroll = 30000;
         let timerInterval = null;
@@ -1147,6 +1154,19 @@
         let obTotalError = 0;
 
         // Initialize inputs
+        document.getElementById('num-decks').addEventListener('input', function() {
+            numDecks = parseInt(this.value);
+            document.getElementById('num-decks-display').textContent = this.value;
+            // Reset deck state when number of decks changes
+            cardsLeftSetting = numDecks * 52;
+            document.getElementById('cards-left-display').textContent = cardsLeftSetting;
+            deck = [];
+            runningCount = 0;
+            originalRunningCount = 0;
+            document.getElementById('running-count-display').textContent = '0';
+            updateStartingTrueCount();
+        });
+
         document.getElementById('decision-time').addEventListener('input', function() {
             decisionTime = parseInt(this.value);
             document.getElementById('decision-time-display').textContent = this.value;
@@ -1201,10 +1221,10 @@
             document.getElementById('optimal-bet-display').textContent = '$' + Math.round(optimalBet).toLocaleString();
         }
 
-        // Create a fresh 8-deck shoe
+        // Create a fresh shoe with numDecks decks
         function createFullDeck() {
             const deck = [];
-            for (let d = 0; d < 8; d++) {
+            for (let d = 0; d < numDecks; d++) {
                 for (const suit of SUITS) {
                     for (let i = 0; i < VALUES.length; i++) {
                         deck.push({
@@ -1313,14 +1333,15 @@
 
         // Randomize function
         function randomize() {
-            // Random cards left between 24 and 416
-            cardsLeftSetting = Math.floor(Math.random() * (416 - 24 + 1)) + 24;
+            const totalCards = numDecks * 52;
+            // Random cards left between 24 and totalCards
+            cardsLeftSetting = Math.floor(Math.random() * (totalCards - 24 + 1)) + 24;
 
             const fullDeck = createFullDeck();
             const shuffled = shuffleDeck(fullDeck);
 
             // Remove cards until we have cardsLeftSetting remaining
-            const cardsToRemove = 416 - cardsLeftSetting;
+            const cardsToRemove = totalCards - cardsLeftSetting;
             const removedCards = shuffled.slice(0, cardsToRemove);
             deck = shuffled.slice(cardsToRemove);
 
@@ -1340,12 +1361,17 @@
 
         // Reset settings to defaults
         function resetSettings() {
+            // Reset number of decks
+            numDecks = 6;
+            document.getElementById('num-decks').value = 6;
+            document.getElementById('num-decks-display').textContent = '6';
+
             // Reset cards left
-            cardsLeftSetting = 416;
+            cardsLeftSetting = 312; // 6 * 52
             deck = [];
             runningCount = 0;
             originalRunningCount = 0;
-            document.getElementById('cards-left-display').textContent = '416';
+            document.getElementById('cards-left-display').textContent = '312';
             document.getElementById('running-count-display').textContent = '0';
 
             // Reset decision time
@@ -1380,12 +1406,13 @@
         // Start game
         function startGame() {
             // If not randomized, create fresh deck
+            const totalCards = numDecks * 52;
             if (deck.length === 0 || deck.length !== cardsLeftSetting) {
                 deck = createFullDeck();
                 deck = shuffleDeck(deck);
                 // Trim to cardsLeftSetting
-                if (cardsLeftSetting < 416) {
-                    const cardsToRemove = 416 - cardsLeftSetting;
+                if (cardsLeftSetting < totalCards) {
+                    const cardsToRemove = totalCards - cardsLeftSetting;
                     const removedCards = deck.slice(0, cardsToRemove);
                     deck = deck.slice(cardsToRemove);
 
@@ -1549,7 +1576,8 @@
 
         // Update health bar
         function updateHealthBar() {
-            const percentage = (deck.length / 416) * 100;
+            const totalCards = numDecks * 52;
+            const percentage = (deck.length / totalCards) * 100;
             const decksRemaining = deck.length / 52;
             document.getElementById('health-bar-fill').style.width = percentage + '%';
             document.getElementById('decks-remaining-text').textContent = decksRemaining.toFixed(2);
@@ -1902,9 +1930,12 @@
             deck = [];
             runningCount = 0;
             originalRunningCount = 0;
-            cardsLeftSetting = 416;
+            numDecks = 6;
+            cardsLeftSetting = 312; // 6 * 52
             bankroll = 30000;
-            document.getElementById('cards-left-display').textContent = '416';
+            document.getElementById('num-decks').value = '6';
+            document.getElementById('num-decks-display').textContent = '6';
+            document.getElementById('cards-left-display').textContent = '312';
             document.getElementById('running-count-display').textContent = '0';
             document.getElementById('true-count-display').textContent = '0.00';
             document.getElementById('bankroll').value = '30000';
